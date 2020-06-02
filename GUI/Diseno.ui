@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>903</width>
+    <height>481</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QGroupBox" name="groupBox">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>431</width>
+      <height>391</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Archivo</string>
+    </property>
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>411</width>
+       <height>361</height>
+      </rect>
+     </property>
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>407</width>
+        <height>357</height>
+       </rect>
+      </property>
+      <widget class="QTextEdit" name="textEdit">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>411</width>
+         <height>361</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>OCR A Extended</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="placeholderText">
+        <string>Tu código Augus aquí.</string>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_2">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>10</y>
+      <width>431</width>
+      <height>391</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Consola</string>
+    </property>
+    <widget class="QScrollArea" name="scrollArea_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>411</width>
+       <height>361</height>
+      </rect>
+     </property>
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents_2">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>407</width>
+        <height>357</height>
+       </rect>
+      </property>
+      <widget class="QTextBrowser" name="textBrowser">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>411</width>
+         <height>361</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Fixedsys</family>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="html">
+        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Fixedsys'; font-size:8pt; font-weight:400; font-style:normal;&quot; bgcolor=&quot;#2d3436&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; color:#dfe6e9;&quot;&gt;¡Hola, Programador! Aquí verás la salida de tu código Augus...&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="placeholderText">
+        <string/>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QPushButton" name="pushButton">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>410</y>
+      <width>91</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Siguiente Linea</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_2">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>410</y>
+      <width>75</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Detener</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>410</y>
+      <width>47</width>
+      <height>14</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Debug:</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>903</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuArchivo">
+    <property name="title">
+     <string>Archivo</string>
+    </property>
+    <addaction name="actionNuevo"/>
+    <addaction name="actionAbrir"/>
+    <addaction name="separator"/>
+    <addaction name="actionGuardar"/>
+    <addaction name="actionGuardar_como"/>
+    <addaction name="separator"/>
+    <addaction name="actionSalir"/>
+   </widget>
+   <widget class="QMenu" name="menuEditar">
+    <property name="title">
+     <string>Editar</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuEjecutar">
+    <property name="title">
+     <string>Ejecutar</string>
+    </property>
+    <widget class="QMenu" name="menuEjecutar_Ascendente">
+     <property name="title">
+      <string>Ejecutar Ascendente</string>
+     </property>
+     <addaction name="actionEjecutar_Todo_3"/>
+     <addaction name="actionEjecutar_Linea_a_Linea_Debug"/>
+    </widget>
+    <widget class="QMenu" name="menuReportes">
+     <property name="title">
+      <string>Reportes</string>
+     </property>
+     <addaction name="actionTabla_de_Simbolos"/>
+     <addaction name="actionAST"/>
+     <addaction name="actionGramatical"/>
+     <addaction name="actionErrores_2"/>
+    </widget>
+    <addaction name="menuEjecutar_Ascendente"/>
+    <addaction name="actionEjecutar_Descendente"/>
+    <addaction name="separator"/>
+    <addaction name="menuReportes"/>
+   </widget>
+   <widget class="QMenu" name="menuOpciones">
+    <property name="title">
+     <string>Opciones</string>
+    </property>
+    <addaction name="actionCambiar_color"/>
+    <addaction name="actionQuitar_numeros"/>
+   </widget>
+   <widget class="QMenu" name="menuAyuda">
+    <property name="title">
+     <string>Ayuda</string>
+    </property>
+    <addaction name="actionAcerca_de"/>
+   </widget>
+   <addaction name="menuArchivo"/>
+   <addaction name="menuEditar"/>
+   <addaction name="menuEjecutar"/>
+   <addaction name="menuOpciones"/>
+   <addaction name="menuAyuda"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionNuevo">
+   <property name="text">
+    <string>Nuevo</string>
+   </property>
+  </action>
+  <action name="actionAbrir">
+   <property name="text">
+    <string>Abrir</string>
+   </property>
+  </action>
+  <action name="actionGuardar">
+   <property name="text">
+    <string>Guardar</string>
+   </property>
+  </action>
+  <action name="actionGuardar_como">
+   <property name="text">
+    <string>Guardar como</string>
+   </property>
+  </action>
+  <action name="actionSalir">
+   <property name="text">
+    <string>Salir</string>
+   </property>
+  </action>
+  <action name="actionEjecutar_Descendente">
+   <property name="text">
+    <string>Ejecutar Descendente</string>
+   </property>
+  </action>
+  <action name="actionCambiar_color">
+   <property name="text">
+    <string>Cambiar color</string>
+   </property>
+  </action>
+  <action name="actionQuitar_numeros">
+   <property name="text">
+    <string>Quitar numeros</string>
+   </property>
+  </action>
+  <action name="actionAcerca_de">
+   <property name="text">
+    <string>Acerca de</string>
+   </property>
+  </action>
+  <action name="actionEjecutar_Todo">
+   <property name="text">
+    <string>Ejecutar Todo</string>
+   </property>
+  </action>
+  <action name="actionErrores">
+   <property name="text">
+    <string>Errores</string>
+   </property>
+  </action>
+  <action name="actionEjecutar_Todo_2">
+   <property name="text">
+    <string>Ejecutar Todo</string>
+   </property>
+  </action>
+  <action name="actionTabla_de_Simbolos">
+   <property name="text">
+    <string>Tabla de Simbolos</string>
+   </property>
+  </action>
+  <action name="actionAST">
+   <property name="text">
+    <string>AST</string>
+   </property>
+  </action>
+  <action name="actionGramatical">
+   <property name="text">
+    <string>Gramatical</string>
+   </property>
+  </action>
+  <action name="actionErrores_2">
+   <property name="text">
+    <string>Errores</string>
+   </property>
+  </action>
+  <action name="actionEjecutar_Todo_3">
+   <property name="text">
+    <string>Ejecutar Todo</string>
+   </property>
+  </action>
+  <action name="actionEjecutar_Linea_a_Linea_Debug">
+   <property name="text">
+    <string>Ejecutar Linea a Linea (Debug)</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
