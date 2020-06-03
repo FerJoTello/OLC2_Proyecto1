@@ -9,6 +9,8 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QColor
+from PyQt5.QtWidgets import QMessageBox, QFileDialog
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -43,9 +45,12 @@ class Ui_MainWindow(object):
         self.scrollArea_2.setWidgetResizable(True)
         self.scrollArea_2.setObjectName("scrollArea_2")
         self.scrollAreaWidgetContents_2 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 407, 357))
-        self.scrollAreaWidgetContents_2.setObjectName("scrollAreaWidgetContents_2")
-        self.textBrowser = QtWidgets.QTextBrowser(self.scrollAreaWidgetContents_2)
+        self.scrollAreaWidgetContents_2.setGeometry(
+            QtCore.QRect(0, 0, 407, 357))
+        self.scrollAreaWidgetContents_2.setObjectName(
+            "scrollAreaWidgetContents_2")
+        self.textBrowser = QtWidgets.QTextBrowser(
+            self.scrollAreaWidgetContents_2)
         self.textBrowser.setGeometry(QtCore.QRect(0, 0, 411, 361))
         font = QtGui.QFont()
         font.setFamily("Fixedsys")
@@ -99,7 +104,8 @@ class Ui_MainWindow(object):
         self.actionSalir = QtWidgets.QAction(MainWindow)
         self.actionSalir.setObjectName("actionSalir")
         self.actionEjecutar_Descendente = QtWidgets.QAction(MainWindow)
-        self.actionEjecutar_Descendente.setObjectName("actionEjecutar_Descendente")
+        self.actionEjecutar_Descendente.setObjectName(
+            "actionEjecutar_Descendente")
         self.actionCambiar_color = QtWidgets.QAction(MainWindow)
         self.actionCambiar_color.setObjectName("actionCambiar_color")
         self.actionQuitar_numeros = QtWidgets.QAction(MainWindow)
@@ -123,7 +129,8 @@ class Ui_MainWindow(object):
         self.actionEjecutar_Todo_3 = QtWidgets.QAction(MainWindow)
         self.actionEjecutar_Todo_3.setObjectName("actionEjecutar_Todo_3")
         self.actionEjecutar_Linea_a_Linea_Debug = QtWidgets.QAction(MainWindow)
-        self.actionEjecutar_Linea_a_Linea_Debug.setObjectName("actionEjecutar_Linea_a_Linea_Debug")
+        self.actionEjecutar_Linea_a_Linea_Debug.setObjectName(
+            "actionEjecutar_Linea_a_Linea_Debug")
         self.menuArchivo.addAction(self.actionNuevo)
         self.menuArchivo.addAction(self.actionAbrir)
         self.menuArchivo.addSeparator()
@@ -132,7 +139,8 @@ class Ui_MainWindow(object):
         self.menuArchivo.addSeparator()
         self.menuArchivo.addAction(self.actionSalir)
         self.menuEjecutar_Ascendente.addAction(self.actionEjecutar_Todo_3)
-        self.menuEjecutar_Ascendente.addAction(self.actionEjecutar_Linea_a_Linea_Debug)
+        self.menuEjecutar_Ascendente.addAction(
+            self.actionEjecutar_Linea_a_Linea_Debug)
         self.menuReportes.addAction(self.actionTabla_de_Simbolos)
         self.menuReportes.addAction(self.actionAST)
         self.menuReportes.addAction(self.actionGramatical)
@@ -149,54 +157,132 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuEjecutar.menuAction())
         self.menubar.addAction(self.menuOpciones.menuAction())
         self.menubar.addAction(self.menuAyuda.menuAction())
-
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.settingEvents()
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.groupBox.setTitle(_translate("MainWindow", "Archivo"))
-        self.textEdit.setPlaceholderText(_translate("MainWindow", "Tu código Augus aquí."))
+        self.textEdit.setPlaceholderText(
+            _translate("MainWindow", "Tu código Augus aquí."))
         self.groupBox_2.setTitle(_translate("MainWindow", "Consola"))
         self.textBrowser.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Fixedsys\'; font-size:8pt; font-weight:400; font-style:normal;\" bgcolor=\"#2d3436\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" color:#dfe6e9;\">¡Hola, Programador! Aquí verás la salida de tu código Augus...</span></p></body></html>"))
+                                            "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                            "p, li { white-space: pre-wrap; }\n"
+                                            "</style></head><body style=\" font-family:\'Fixedsys\'; font-size:8pt; font-weight:400; font-style:normal;\" bgcolor=\"#2d3436\">\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" color:#dfe6e9;\">¡Hola, Programador! Aquí verás la salida de tu código Augus...</span></p></body></html>"))
         self.pushButton.setText(_translate("MainWindow", "Siguiente Linea"))
         self.pushButton_2.setText(_translate("MainWindow", "Detener"))
         self.label.setText(_translate("MainWindow", "Debug:"))
         self.menuArchivo.setTitle(_translate("MainWindow", "Archivo"))
         self.menuEditar.setTitle(_translate("MainWindow", "Editar"))
         self.menuEjecutar.setTitle(_translate("MainWindow", "Ejecutar"))
-        self.menuEjecutar_Ascendente.setTitle(_translate("MainWindow", "Ejecutar Ascendente"))
+        self.menuEjecutar_Ascendente.setTitle(
+            _translate("MainWindow", "Ejecutar Ascendente"))
         self.menuReportes.setTitle(_translate("MainWindow", "Reportes"))
         self.menuOpciones.setTitle(_translate("MainWindow", "Opciones"))
         self.menuAyuda.setTitle(_translate("MainWindow", "Ayuda"))
         self.actionNuevo.setText(_translate("MainWindow", "Nuevo"))
         self.actionAbrir.setText(_translate("MainWindow", "Abrir"))
         self.actionGuardar.setText(_translate("MainWindow", "Guardar"))
-        self.actionGuardar_como.setText(_translate("MainWindow", "Guardar como"))
+        self.actionGuardar_como.setText(
+            _translate("MainWindow", "Guardar como"))
         self.actionSalir.setText(_translate("MainWindow", "Salir"))
-        self.actionEjecutar_Descendente.setText(_translate("MainWindow", "Ejecutar Descendente"))
-        self.actionCambiar_color.setText(_translate("MainWindow", "Cambiar color"))
-        self.actionQuitar_numeros.setText(_translate("MainWindow", "Quitar numeros"))
+        self.actionEjecutar_Descendente.setText(
+            _translate("MainWindow", "Ejecutar Descendente"))
+        self.actionCambiar_color.setText(
+            _translate("MainWindow", "Cambiar color"))
+        self.actionQuitar_numeros.setText(
+            _translate("MainWindow", "Quitar numeros"))
         self.actionAcerca_de.setText(_translate("MainWindow", "Acerca de"))
-        self.actionEjecutar_Todo.setText(_translate("MainWindow", "Ejecutar Todo"))
+        self.actionEjecutar_Todo.setText(
+            _translate("MainWindow", "Ejecutar Todo"))
         self.actionErrores.setText(_translate("MainWindow", "Errores"))
-        self.actionEjecutar_Todo_2.setText(_translate("MainWindow", "Ejecutar Todo"))
-        self.actionTabla_de_Simbolos.setText(_translate("MainWindow", "Tabla de Simbolos"))
+        self.actionEjecutar_Todo_2.setText(
+            _translate("MainWindow", "Ejecutar Todo"))
+        self.actionTabla_de_Simbolos.setText(
+            _translate("MainWindow", "Tabla de Simbolos"))
         self.actionAST.setText(_translate("MainWindow", "AST"))
         self.actionGramatical.setText(_translate("MainWindow", "Gramatical"))
         self.actionErrores_2.setText(_translate("MainWindow", "Errores"))
-        self.actionEjecutar_Todo_3.setText(_translate("MainWindow", "Ejecutar Todo"))
-        self.actionEjecutar_Linea_a_Linea_Debug.setText(_translate("MainWindow", "Ejecutar Linea a Linea (Debug)"))
+        self.actionEjecutar_Todo_3.setText(
+            _translate("MainWindow", "Ejecutar Todo"))
+        self.actionEjecutar_Linea_a_Linea_Debug.setText(
+            _translate("MainWindow", "Ejecutar Linea a Linea (Debug)"))
+
+    def settingEvents(self):
+        self.actual_file_route = ""
         # Widget operations by binding signals
-        self.actionNuevo.triggered.connect(self.clicked)
-    def clicked(self):
-        self.textBrowser.setTextColor(QColor(223, 230, 233))
-        self.textBrowser.append("nuevoTexto")
+        self.actionNuevo.triggered.connect(self.newFile)
+        self.actionAbrir.triggered.connect(self.openFile)
+        self.actionGuardar.triggered.connect(self.saveFile)
+        self.actionGuardar_como.triggered.connect(self.saveFileAs)
+        self.actionSalir.triggered.connect(self.closeAndExit)
+
+    def newFile(self):
+        msgBox = QMessageBox()
+        msgBox.setText("¿Deseas guardar el documento que estabas trabajando?")
+        msgBox.setStandardButtons(QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
+        choosen_option = msgBox.exec()
+        if(choosen_option == QMessageBox.Save):
+            self.saveFile()    
+        elif(choosen_option == QMessageBox.Discard):
+            '''Discard changes'''
+            self.discardChanges()
+        elif(choosen_option == QMessageBox.Cancel):
+            '''Does nothing'''
+    
+    def discardChanges(self):
+        self.textEdit.setText("")
+        self.textBrowser.setText("")
+
+    def openFile(self):
+        try:
+            selected_files = QFileDialog.getOpenFileName(
+                None, 'Abrir Archivo', None, "Archivos TXT (*.txt)")
+            opened_file = open(selected_files[0], "r")
+            value = opened_file.read()
+            opened_file.close()
+            self.textEdit.setText(value)
+            self.actual_file_route = selected_files[0]
+        except FileNotFoundError:
+            msgBox = QMessageBox()
+            msgBox.setText("No se seleccionó ningún documento.")
+            msgBox.exec()
+
+    def saveFile(self):
+        if(len(self.actual_file_route) > 0):
+            try:
+                saved_file = open(self.actual_file_route, "w")
+                saved_file.write(self.textEdit.toPlainText())
+                saved_file.close()
+                return True
+            except FileNotFoundError:
+                msgBox = QMessageBox()
+                msgBox.setText("No se seleccionó ningún documento.")
+                msgBox.exec()
+                return False
+        else:
+            return self.saveFileAs()
+
+    def saveFileAs(self):
+        try:
+            saved_file_name = QFileDialog.getSaveFileName(
+                None, "Guardar Archivo", None, "Archivos TXT (*.txt)")
+            saved_file = open(saved_file_name[0], "w")
+            saved_file.write(self.textEdit.toPlainText())
+            saved_file.close()
+            self.actual_file_route = saved_file_name[0]
+            return True
+        except FileNotFoundError:
+            msgBox = QMessageBox()
+            msgBox.setText("No se seleccionó ningún documento.")
+            msgBox.exec()
+            return False
+    def closeAndExit(self):
+        sys.exit()
 
 if __name__ == "__main__":
     import sys

@@ -6,6 +6,9 @@
 __pycache__/
 *.py[cod]
 *$py.class
+parser.out
+parsetab.py
+**/__pycache__/**
 
 # C extensions
 *.so
