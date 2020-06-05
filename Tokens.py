@@ -164,6 +164,7 @@ def t_error(t):
     t.lexer.skip(1)
 
 import ply.lex as lex
+'''
 lexer = lex.lex()
 
 lexer.input("main:\n\t$t1=\"sex\";\n\t$a0=$t1;")
@@ -173,3 +174,4 @@ while True:
     if not tok:
         break
     print(tok)
+'''
