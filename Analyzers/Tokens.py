@@ -152,6 +152,7 @@ def t_STRING(t):
 def t_COMMENT(t):
     r'\#(.*)'
     t.lexer.lineno += 1
+    t.lexer.skip(1)
 
 t_ignore = " \t"
 

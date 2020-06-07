@@ -1,4 +1,4 @@
-GRAMATICA
+GRAMATICA   (se realizaron cambios asi que no es la exactamente la misma que se utilizo en el analizador)
 
 <INIT>::=       /   <START>
 
