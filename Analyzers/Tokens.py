@@ -122,7 +122,7 @@ def t_V_STACK_POINTER(t):
     return t
 
 def t_INTEGER(t):
-    r'\$d+'
+    r'\d+'
     try:
         t.value = int(t.value)
     except ValueError:
