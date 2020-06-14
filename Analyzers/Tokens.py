@@ -49,8 +49,8 @@ tokens = [
     'V_RETURN_LVL',
     'V_STACK',
     'V_STACK_POINTER',
-    'INTEGER',
     'DECIMAL',
+    'INTEGER',
     'CHARACTER',
     'STRING',
     'COMMENT'
@@ -121,19 +121,19 @@ def t_V_STACK_POINTER(t):
     t.value = str(t.value)
     return t
 
-def t_INTEGER(t):
-    r'\d+'
+def t_DECIMAL(t):
+    r'\d+\.\d+'
     try:
-        t.value = int(t.value)
+        t.value = float(t.value)
     except ValueError:
         print("No se pudo convertir %d", t.value)
         t.value = 0
     return t
 
-def t_DECIMAL(t):
-    r'\d+\.\d+'
+def t_INTEGER(t):
+    r'\d+'
     try:
-        t.value = float(t.value)
+        t.value = int(t.value)
     except ValueError:
         print("No se pudo convertir %d", t.value)
         t.value = 0

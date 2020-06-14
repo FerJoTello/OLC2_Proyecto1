@@ -37,7 +37,7 @@ def p_start_main(p):
     node_index = inc()
     dot.node(node_index, 'start')
     dot.edge(node_index, p[1].node_index)
-    p[0] = p[1]
+    p[0] = [p[1]]
 
 
 def p_main(p):
@@ -46,7 +46,7 @@ def p_main(p):
     node_index = inc()
     dot.node(node_index, 'main')
     dot.edge(node_index, p[3].node_index)
-    p[0] = Instructions.Main(node_index, p[3])
+    p[0] = Instructions.Main(node_index, p[3].instructions_list)
 
 
 def p_list_instr_list(p):
@@ -105,7 +105,7 @@ def p_label(p):
     node_index = inc()
     dot.node(node_index, p.slice[1].value)
     dot.edge(node_index, p[3].node_index)
-    p[0] = Instructions.Label(node_index, p[1], p[3])
+    p[0] = Instructions.Label(node_index, p[1], p[3].instructions_list)
 
 
 def p_label_error(p):
@@ -175,25 +175,25 @@ def p_expression(p):
 
 
 def p_binary(p):
-    '''binary           :   register S_SUM register
-                        |   register S_SUBS register
-                        |   register S_ASTERISK register
-                        |   register S_SLASH register
-                        |   register S_PERCENTAGE register
-                        |   register OP_OR register
-                        |   register OP_AND register
-                        |   register R_XOR register
-                        |   register OP_COMPARISSON register
-                        |   register OP_DISTINCT register
-                        |   register OP_LESS_EQUAL register
-                        |   register OP_GREATER_EQUAL register
-                        |   register OP_GREATER register
-                        |   register OP_LESS register
-                        |   register OPB_OR register
-                        |   register OPB_AND register
-                        |   register OPB_XOR register
-                        |   register OPB_L_SHIFT register
-                        |   register OPB_R_SHIFT register'''
+    '''binary           :   operand S_SUM operand
+                        |   operand S_SUBS operand
+                        |   operand S_ASTERISK operand
+                        |   operand S_SLASH operand
+                        |   operand S_PERCENTAGE operand
+                        |   operand OP_OR operand
+                        |   operand OP_AND operand
+                        |   operand R_XOR operand
+                        |   operand OP_COMPARISSON operand
+                        |   operand OP_DISTINCT operand
+                        |   operand OP_LESS_EQUAL operand
+                        |   operand OP_GREATER_EQUAL operand
+                        |   operand OP_GREATER operand
+                        |   operand OP_LESS operand
+                        |   operand OPB_OR operand
+                        |   operand OPB_AND operand
+                        |   operand OPB_XOR operand
+                        |   operand OPB_L_SHIFT operand
+                        |   operand OPB_R_SHIFT operand'''
     node_index = inc()
     dot.node(node_index, p.slice[2].value)
     dot.edge(node_index, p[1].node_index)
@@ -290,7 +290,7 @@ def p_primitive(p):
         _type = Expressions.TYPE.CHARACTER
     node_index = inc()
     dot.node(node_index, str(p.slice[1].value))
-    p[0] = Expressions.Primitive(node_index, _type, str(p.slice[1].value))
+    p[0] = Expressions.Primitive(node_index, _type, p.slice[1].value)
 
 
 def p_conversion(p):
@@ -313,10 +313,10 @@ def p_conversion(p):
 
 
 def p_simple_unary(p):
-    '''simple_unary     :   S_SUBS register
-                        |   OPB_AND register
-                        |   OP_NOT register
-                        |   OPB_NOT register'''
+    '''simple_unary     :   S_SUBS operand
+                        |   OPB_AND operand
+                        |   OP_NOT operand
+                        |   OPB_NOT operand'''
     node_index = inc()
     dot.node(node_index, p.slice[1].value)
     dot.edge(node_index, p[2].node_index)
@@ -364,15 +364,14 @@ def p_goto(p):
 
 
 def p_print(p):
-    'print              :   R_PRINT S_L_PAR print_content S_R_PAR S_SEMICOLON'
+    'print              :   R_PRINT S_L_PAR operand S_R_PAR S_SEMICOLON'
     node_index = inc()
     dot.node(node_index, 'print()')
     dot.edge(node_index, p[3].node_index)
     p[0] = Instructions.Print(node_index, p[3])
 
-
-def p_print_content(p):
-    '''print_content    :   register
+def p_operator(p):
+    '''operand          :   register
                         |   primitive'''
     p[0] = p[1]
 
@@ -414,21 +413,19 @@ def p_error(p):
     # parser.restart()
     # return tok
 
-
-parser = yacc.yacc()
-
-#input = "main :\n\t$a0=$t1;\n\t$t1=$t2+$t3;"
-#input = "main :\n\t$a0=$t1;\n\t$t1=$t2+$t3; label1:$t5='xd';"
+#inputmalo = "main :\n\t$a0=$t1;\n\t$t1=$t2+$t3;"
+#inputlabel1 = "main :\n\t$a0=$t1;\n\t$t1=$t2+$t3; label1:$t5='xd';"
 #input = "main :\n\t$a0=$t1;\n\t$t1=$t2+$t3; $t5=32; $sp=(int)$t5; $t6=abs( $sp ); $t7=array(); $t8=-$t6;"
-#
-input2 = "main :\n\t$a0=$t1;\n\t$t1['valor']=$t2+$t3; $t1[1][0]=32; $t1[2][0][0]='se popeo'; aasdasd: goto xd; $sp='feca'; print($sp); xd:if ($t1!=$t5) goto aasdasd; exit;"
-popeado = 'main: \t\n print(sex); $t0 = read(); \t\n  \t\n goto $t3; \n ret0: \t\n $t90 = array(); \t\n exit; \t\n f1: \n $a1 = $efecamaster; \t\n goto f2; \t\n ret1: \n $v0 = $v1; \t\n goto ret0; \t\n f2: \n $v1 = $a1*$a1; \t\n goto ret1;'
+#popeado = 'main: \t\n print(sex); $t0 = read(); \t\n  \t\n goto $t3; \n ret0: \t\n $t90 = array(); \t\n exit; \t\n f1: \n $a1 = $efecamaster; \t\n goto f2; \t\n ret1: \n $v0 = $v1; \t\n goto ret0; \t\n f2: \n $v1 = $a1*$a1; \t\n goto ret1;'
 #lexer = lex.lex()
 
 # lexer.input(popeado)
 
+
 # parser.parse(input)
-parser.parse(input2)
-dot.view()
-'''
-'''
+# parser.parse(input2)
+
+def parse(input):
+    instructions = yacc.yacc().parse(input)
+    #dot.view()
+    return instructions

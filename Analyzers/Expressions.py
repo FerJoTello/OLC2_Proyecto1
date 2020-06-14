@@ -1,11 +1,25 @@
 from enum import Enum
 
 
+class REG_TYPE(Enum):
+    TEMPORAL = 1
+    PARAMETER = 2
+    RETURN_VALUE = 3
+    RETURN_LEVEL = 4
+    STACK_VALUE = 5
+    STACK_POINTER = 6
+    FUNCTION = 7
+    PROCEDURE = 8
+    CONTROL = 9
+    MAIN = 10
+
+
 class TYPE(Enum):
     INTEGER = 1
     DECIMAL = 2
     STRING = 3
     CHARACTER = 4
+    ARRAY = 5
 
 
 class UNIT_OPERATION(Enum):
@@ -86,8 +100,19 @@ class Primitive(Terminal):
 class Register(Terminal):
     def __init__(self, node_index, _type, name):
         self.node_index = node_index
-        self.type = _type
+        self.type = self.set_type(_type)
         self.name = name
+
+    def set_type(self, _type):
+        types = {
+            'V_TEMP': REG_TYPE.TEMPORAL,
+            'V_PARAM': REG_TYPE.PARAMETER,
+            'V_RETURNED': REG_TYPE.RETURN_VALUE,
+            'V_RETURN_LVL': REG_TYPE.RETURN_LEVEL,
+            'V_STACK': REG_TYPE.STACK_VALUE,
+            'V_STACK_POINTER': REG_TYPE.STACK_POINTER
+        }
+        return types.get(_type)
 
 
 class Read(Terminal):

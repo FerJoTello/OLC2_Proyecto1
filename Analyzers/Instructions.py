@@ -2,6 +2,7 @@ class Instruction:
     '''original father class'''
 
 class InstructionsList:
+    'used only to create the ast and it is not part of the interpreter'
     def __init__(self, node_index, instructions_list):
         self.node_index = node_index
         self.instructions_list = instructions_list
@@ -56,9 +57,13 @@ class Label(Instruction):
         self.node_index = node_index
         self.name = name
         self.instructions = instructions
+        self.type = None
+        self.type_defined = False
 
 class Main(Label):
     def __init__(self, node_index, instructions):
         self.node_index = node_index
         self.name = "main"
         self.instructions = instructions
+        self.type = None
+        self.type_defined = False
