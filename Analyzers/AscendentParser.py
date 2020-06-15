@@ -294,9 +294,9 @@ def p_primitive(p):
 
 
 def p_conversion(p):
-    '''conversion       :   S_L_PAR R_INT S_R_PAR register
-                        |   S_L_PAR R_FLOAT S_R_PAR register
-                        |   S_L_PAR R_CHAR S_R_PAR register'''
+    '''conversion       :   S_L_PAR R_INT S_R_PAR s_register
+                        |   S_L_PAR R_FLOAT S_R_PAR s_register
+                        |   S_L_PAR R_CHAR S_R_PAR s_register'''
     if p.slice[2].type == 'R_INT':
         _type = Expressions.TYPE.INTEGER
     elif p.slice[2].type == 'R_FLOAT':
@@ -426,6 +426,10 @@ def p_error(p):
 # parser.parse(input2)
 
 def parse(input):
-    instructions = yacc.yacc().parse(input)
-    #dot.view()
-    return instructions
+    try:
+        instructions = yacc.yacc().parse(input)
+        #dot.view()
+        return instructions
+    except Exception as e:
+        print(e)
+        return None
