@@ -164,7 +164,6 @@ def t_error(t):
     print("Caracter no valido '%s'" % t.value[0])
     t.lexer.skip(1)
 
-import ply.lex as lex
 '''
 lexer = lex.lex()
 

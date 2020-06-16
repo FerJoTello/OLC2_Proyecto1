@@ -7,17 +7,21 @@ from Table import SymbolTable
 
 symbol_table = SymbolTable()
 label_table = SymbolTable()
-actual_label = None
+instructions_stack = []  # indice 0 es la cabeza
+#actual_label = None
 parameters = False
 
 
 def process_labels(labels):
     for label in labels:
+        label.type = REG_TYPE.CONTROL
         label_table.add(label.name, label)
 
 
-def process_instructions(instructions):
-    for instr in instructions:
+def process_instructions():
+    global instructions_stack
+    while len(instructions_stack) != 0:
+        instr = instructions_stack.pop(0)
         if isinstance(instr, Instructions.Assignation):
             if isinstance(instr.reg, Register):
                 process_normal_assignation(instr)
@@ -29,17 +33,10 @@ def process_instructions(instructions):
             process_if(instr)
         elif isinstance(instr, Instructions.GoTo):
             process_goto(instr)
-        elif isinstance(instr, Instructions.Main):
-            process_main()
-        elif isinstance(instr, Instructions.Label):
-            process_label(instr)
         elif isinstance(instr, Instructions.Unset):
             process_unset(instr)
         elif isinstance(instr, Instructions.Exit):
             process_exit()
-        else:
-            print("Se ha intentado realizar una instrucción inválida")
-            print(instr)
 
 
 def process_normal_assignation(instr):
@@ -49,10 +46,10 @@ def process_normal_assignation(instr):
         symb = Symbol(instr.reg.name, instr.reg.type,
                       primitive.type, primitive.value)
         symbol_table.add(instr.reg.name, symb)
-        global actual_label
-        if not actual_label.type_defined and symb.reg_type == REG_TYPE.RETURN_VALUE:
-            actual_label.type = REG_TYPE.FUNCTION
-            actual_label.type_defined = True
+        #global actual_label
+        # if not actual_label.type_defined and symb.reg_type == REG_TYPE.RETURN_VALUE:
+        #actual_label.type = REG_TYPE.FUNCTION
+        #actual_label.type_defined = True
     except AttributeError:
         print('*FALLO EN LA ASIGNACION*\nNO SE PUEDE REALIZAR LA ASIGNACIÓN DE', instr.reg.name)
 
@@ -462,22 +459,23 @@ def convert_char(symb):
 
 
 def process_if(instr):
-    global actual_label
-    if not actual_label.type_defined:
-        actual_label.type = REG_TYPE.CONTROL
+    #global actual_label
     expr = process_expression(instr.expr)
     if expr.value == 1:
+        global instructions_stack
+        # se limpia la pila ya que el salto condicional indica que se tienen que ejecutar únicamente las que contenga el label del goto
+        instructions_stack = []
         process_goto(instr.goto)
 
 
 def process_goto(instr):
     label = label_table.get(instr.label)
     if label != None:
-        global actual_label
-        aux = actual_label
-        actual_label = label
+        #global actual_label
+        #aux = actual_label
+        #actual_label = label
         process_label(label)
-        actual_label = aux
+        #actual_label = aux
     else:
         print("*Error en goto*")
         print("No es posible hacer un salto a \'" +
@@ -485,14 +483,14 @@ def process_goto(instr):
 
 
 def process_print(instr):
-    # try:
-    content = process_terminal(instr.content)
-    if str(content.value) == '\\n':
-        print('\n')
-    else:
-        print('>>'+str(content.value))
-    # except:
-    #print('*Fallo en print()*\nNo es posible imprimir',str(instr.content))
+    try:
+        content = process_terminal(instr.content)
+        if str(content.value) == '\\n':
+            print('\n')
+        else:
+            print('>>'+str(content.value))
+    except:
+        print('*Fallo en print()*\nNo es posible imprimir', str(instr.content))
 
 
 def process_exit():
@@ -538,21 +536,19 @@ def process_unset(instr):
 
 def process_label(instr):
     label = label_table.get(instr.name)
-    if not label.type_defined:
-        label.type = REG_TYPE.CONTROL
-    global actual_label
-    actual_label = label
-    process_instructions(label.instructions)
-    label.type_defined = True
+    #global actual_label
+    #actual_label = label
+    global instructions_stack
+    instructions_stack = label.instructions + instructions_stack
 
 
 def process_main():
     main = label_table.get('main')
     main.type = REG_TYPE.MAIN
     main.type_defined = True
-    global actual_label
-    actual_label = main
-    process_instructions(main.instructions)
+    global instructions_stack
+    instructions_stack = main.instructions + instructions_stack
+    process_instructions()
 
 
 def print_things():
@@ -579,16 +575,20 @@ def print_symbols(symbols):
                   symbol.value_type.name+" | "+str(symbol.value)+" |")
 
 
-# input = "main: $t90 = array(); $a0=15; $a1=2; goto labelXD; $t1=-$v1; print($t1); unset($t1); unset($t1); print($t1); exit; labelXD: $t0=$a0!=$a1; if ($t0) goto labelXD1; $v1=$v0; labelXD1: $v0=2;"
+input = "main: $t90 = array(); $a0=15; $a1=2; goto labelXD; $t1=-$v1; print($t1); unset($t1); #unset($t1);#print($t1);\n exit; labelXD: $t0=$a0!=$a1; if ($t0) goto labelXD1; $v1=$v0; labelXD1: $v0=2; label3: print($v0);"
 arrays = "main: $t0 = array(); $t0[0]='a'; $t0[1][0]='2'; $t1 = (int) $t0;"
 basico = "main:\n$t1 = array();\n$t1[0]['nombre']=\"Hugo\";\n$t1[0]['direccion']=\"zona 4\";\n$t1[0]['telefono'][0]=56457854;\n$t1[0]['telefono'][0]=45784565;\n"
-basico2 = "main:\n$t0 = array(); $t0[0]='Carla'; print('\\n');"
-instructions = parse(basico2)
+basico2 = "main:\n$t0 = array(); $t0[0]='Carla'; defacasex: print($t0[0]);"
+soft = 'main: $t0=1; print($t0); if ($t0==1) goto labelsex; print("sigo aqui jaja"); labelsex: print("desde el label");'
 try:
-    process_labels(instructions)
-    process_instructions(instructions)
-    print_things()
+    labels = parse(soft)
+    process_labels(labels)
+    process_main()
 except TypeError:
     print('Se produjo un error en el analisis')
 except InterruptedError:
     print('Ha finalizado la ejecución')
+try:
+    print_things()
+except Exception as e:
+    print(e)

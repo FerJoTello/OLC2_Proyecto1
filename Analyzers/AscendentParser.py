@@ -1,4 +1,5 @@
 from Tokens import *
+import ply.lex as lex
 import Instructions
 import Expressions
 import ply.yacc as yacc
@@ -12,8 +13,8 @@ def inc():
     return 'n'+str(n)
 
 
-dot = Digraph('AST')
-
+dot = Digraph('AST_Ascendent')
+dot.format = 'png'
 
 lexer = lex.lex()
 
@@ -52,7 +53,7 @@ def p_main(p):
 def p_list_instr_list(p):
     'list_instr         :   list_instr instr'
     node_index = inc()
-    dot.node(node_index, 'list_instr')
+    dot.node(node_index, 'instruction')
     dot.edge(node_index, p[1].node_index)
     dot.edge(node_index, p[2].node_index)
     p[1].instructions_list.append(p[2])
@@ -62,7 +63,7 @@ def p_list_instr_list(p):
 def p_list_instr_single_instr(p):
     'list_instr         :   instr'
     node_index = inc()
-    dot.node(node_index, 'list_instr')
+    dot.node(node_index, 'instruction')
     dot.edge(node_index, p[1].node_index)
     p[0] = Instructions.InstructionsList(node_index, [p[1]])
 
@@ -84,7 +85,7 @@ def p_instr_error(p):
 def p_list_label_list(p):
     'list_label         :   list_label label'
     node_index = inc()
-    dot.node(node_index, 'list_label')
+    dot.node(node_index, 'label_list')
     dot.edge(node_index, p[1].node_index)
     dot.edge(node_index, p[2].node_index)
     p[1].list_label.append(p[2])
@@ -94,22 +95,16 @@ def p_list_label_list(p):
 
 def p_list_label_single(p):
     'list_label         :   label'
-    node_index = inc()
-    dot.node(node_index, 'list_label')
-    dot.edge(node_index, p[1].node_index)
-    p[0] = Instructions.LabelList(node_index, [p[1]])
+    p[0] = Instructions.LabelList(p[1].node_index, [p[1]])
 
 
 def p_label(p):
-    '''label            :   LABEL_NAME S_COLON list_instr'''
+    '''label            :   LABEL_NAME S_COLON list_instr
+                        |   LABEL_NAME error list_instr'''
     node_index = inc()
     dot.node(node_index, p.slice[1].value)
     dot.edge(node_index, p[3].node_index)
     p[0] = Instructions.Label(node_index, p[1], p[3].instructions_list)
-
-
-def p_label_error(p):
-    '''label            :   LABEL_NAME error list_instr'''
 
 
 def p_assignation(p):
@@ -149,13 +144,13 @@ def p_array_register(p):
     p[0] = Expressions.ArrayRegister(node_index, p[1], p[2])
 
 
-def p_list_array_list(p):
+def p_list_brackets_list(p):
     'list_brackets      :   list_brackets S_L_SQR_BRA array_cont S_R_SQR_BRA'
     p[1].append(p[3])
     p[0] = p[1]
 
 
-def p_list_array_single(p):
+def p_list_brackets_single(p):
     'list_brackets      :   S_L_SQR_BRA array_cont S_R_SQR_BRA'
     p[0] = [p[2]]
 
@@ -428,7 +423,7 @@ def p_error(p):
 def parse(input):
     try:
         instructions = yacc.yacc().parse(input)
-        #dot.view()
+        dot.view()
         return instructions
     except Exception as e:
         print(e)
