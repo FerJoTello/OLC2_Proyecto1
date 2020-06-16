@@ -1,5 +1,5 @@
 import Instructions
-from DescendentParser import parse
+from AscendentParser import parse
 from Expressions import *
 from Table import Symbol
 from Table import SymbolTable
@@ -8,8 +8,7 @@ from Table import SymbolTable
 symbol_table = SymbolTable()
 label_table = SymbolTable()
 instructions_stack = []  # indice 0 es la cabeza
-#actual_label = None
-parameters = False
+actual_label = None
 
 
 def process_labels(labels):
@@ -46,12 +45,13 @@ def process_normal_assignation(instr):
         symb = Symbol(instr.reg.name, instr.reg.type,
                       primitive.type, primitive.value)
         symbol_table.add(instr.reg.name, symb)
-        #global actual_label
-        # if not actual_label.type_defined and symb.reg_type == REG_TYPE.RETURN_VALUE:
-        #actual_label.type = REG_TYPE.FUNCTION
-        #actual_label.type_defined = True
-    except AttributeError:
+        global actual_label
+        if not actual_label.type_defined and symb.reg_type == REG_TYPE.RETURN_VALUE:
+            actual_label.type = REG_TYPE.FUNCTION
+            actual_label.type_defined = True
+    except AttributeError as e:
         print('*FALLO EN LA ASIGNACION*\nNO SE PUEDE REALIZAR LA ASIGNACIÓN DE', instr.reg.name)
+        print(e)
 
 
 def process_array_assignation(instr):
@@ -337,7 +337,20 @@ def process_terminal(term):
     if isinstance(term, Primitive):
         return term
     elif isinstance(term, Register):
-        return symbol_table.get_primitive(term.name)
+        try:
+            # es el registro recuperado como símbolo
+            symbol = symbol_table.get(term.name)
+            global actual_label
+            '''si no ha sido definido el tipo y el tipo del registro es parametro o retorno de nivel se establece el tipo como PROCEDURE
+            pero no se establece como tipo ya definido porque puede verse afectado por el uso de un valor de retorno y ser FUNCTION.
+            *se realizó de esta manera ya que se está utilizando un parametro o retorno de nivel en una instrucción que lo requiera,
+            así que al procesar el registro simple y coincidir los tipos se le asigna el tipo como Procedimiento'''
+            if not actual_label.type_defined and (symbol.reg_type == REG_TYPE.PARAMETER or symbol.reg_type == REG_TYPE.RETURN_LEVEL):
+                actual_label.type = REG_TYPE.PROCEDURE
+            return Primitive('', symbol.value_type, symbol.value)
+        except AttributeError:
+            print("*Error al recuperar registro*\nNo se ha definido '"+term.name+"'")
+            return None
     elif isinstance(term, ArrayRegister):
         'Se está accediendo al índice de un arreglo'
         try:
@@ -459,23 +472,21 @@ def convert_char(symb):
 
 
 def process_if(instr):
-    #global actual_label
+    '''al procesar un if se podría establecer el tipo de la etiqueta como Control
+    pero al principio de la ejecución ya fueron definidas toda las etiquetas como Control
+    por lo que se omite aquí'''
     expr = process_expression(instr.expr)
     if expr.value == 1:
-        global instructions_stack
-        # se limpia la pila ya que el salto condicional indica que se tienen que ejecutar únicamente las que contenga el label del goto
-        instructions_stack = []
         process_goto(instr.goto)
 
 
 def process_goto(instr):
     label = label_table.get(instr.label)
     if label != None:
-        #global actual_label
-        #aux = actual_label
-        #actual_label = label
-        process_label(label)
-        #actual_label = aux
+        global instructions_stack, actual_label
+        # se limpia la pila ya que el salto 'goto' indica que se tienen que ejecutar únicamente las instrucciones de esa etiqueta a la que se hace el salto
+        instructions_stack = [] + label.instructions
+        actual_label = label
     else:
         print("*Error en goto*")
         print("No es posible hacer un salto a \'" +
@@ -534,20 +545,13 @@ def process_unset(instr):
                 "*Fallo en unset*\nNo se encontró un valor para el registro '"+name+"'")
 
 
-def process_label(instr):
-    label = label_table.get(instr.name)
-    #global actual_label
-    #actual_label = label
-    global instructions_stack
-    instructions_stack = label.instructions + instructions_stack
-
-
 def process_main():
     main = label_table.get('main')
     main.type = REG_TYPE.MAIN
     main.type_defined = True
-    global instructions_stack
-    instructions_stack = main.instructions + instructions_stack
+    global instructions_stack, actual_label
+    actual_label = main
+    instructions_stack = [] + main.instructions
     process_instructions()
 
 
@@ -575,13 +579,12 @@ def print_symbols(symbols):
                   symbol.value_type.name+" | "+str(symbol.value)+" |")
 
 
-input = "main: $t90 = array(); $a0=15; $a1=2; goto labelXD; $t1=-$v1; print($t1); unset($t1); #unset($t1);#print($t1);\n exit; labelXD: $t0=$a0!=$a1; if ($t0) goto labelXD1; $v1=$v0; labelXD1: $v0=2; label3: print($v0);"
+input = "main: $a0=2; $a1=2; goto labelXD; print('esto ya no lo hace'); labelXD: $t0=$a0!=$a1; if ($t0) goto labelXD1; print('no se cumplio la condicion'); goto label3; labelXD1: $v0=2; label3: exit;"
 arrays = "main: $t0 = array(); $t0[0]='a'; $t0[1][0]='2'; $t1 = (int) $t0;"
 basico = "main:\n$t1 = array();\n$t1[0]['nombre']=\"Hugo\";\n$t1[0]['direccion']=\"zona 4\";\n$t1[0]['telefono'][0]=56457854;\n$t1[0]['telefono'][0]=45784565;\n"
-basico2 = "main:\n$t0 = array(); $t0[0]='Carla'; defacasex: print($t0[0]);"
-soft = 'main: $t0=1; print($t0); if ($t0==1) goto labelsex; print("sigo aqui jaja"); labelsex: print("desde el label");'
+factorial = "main:\n$a0 = 3;\n$ra = 0; #level 0\ngoto fact;\nret0:\nprint($v0);\nexit;\nfact:\nif ($a0>1) goto sino;\n$v0 = 1;\nif ($ra==0) goto ret0;\n$ra = $ra - 1;\ngoto ret1;\nsino:\n$a0 = $a0 - 1;\n$ra = $ra + 1; #level ++\ngoto fact;\nret1:\n$a0 = $a0 + 1;\n$v0 = $a0 * $v0;\nif ($ra==0) goto ret0;\n$ra = $ra - 1;\ngoto ret1;\n"
 try:
-    labels = parse(input)
+    labels = parse(factorial)
     process_labels(labels)
     process_main()
 except TypeError:
