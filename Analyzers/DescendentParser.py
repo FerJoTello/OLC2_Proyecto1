@@ -3,7 +3,7 @@ import ply.lex as lex
 import Instructions
 import Expressions
 import ply.yacc as yacc
-from graphviz import Graph
+from graphviz import Digraph
 n = -1
 
 
@@ -13,7 +13,7 @@ def inc():
     return 'n'+str(n)
 
 
-dot = Graph('AST_Ascendent')
+dot = Digraph('AST_Descendent')
 dot.format = 'png'
 
 lexer = lex.lex()
@@ -50,22 +50,41 @@ def p_main(p):
     p[0] = Instructions.Main(node_index, p[3].instructions_list)
 
 
-def p_list_instr_list(p):
-    'list_instr         :   list_instr instr'
+def p_list_instr(p):
+    'list_instr         :   instr list_instr_p'
     node_index = inc()
     dot.node(node_index, 'instruction')
+    instructions = [p[1]] + p[2].instructions_list
     dot.edge(node_index, p[1].node_index)
-    dot.edge(node_index, p[2].node_index)
-    p[1].instructions_list.append(p[2])
-    p[0] = Instructions.InstructionsList(node_index, p[1].instructions_list)
+    p[0] = Instructions.InstructionsList(node_index, instructions)
+    try:
+        'para vincular la posible lista de instrucciones'
+        dot.edge(node_index, p[2].node_index)
+    except AttributeError:
+        '''es la última instrucción por lo que list_instr_p produce epsilon
+        y no contiene atributo para vincular los nodos (ahí levanta error)
+        así que se controla el error omitiendo ese vínculo'''
 
 
-def p_list_instr_single_instr(p):
-    'list_instr         :   instr'
+def p_list_instr_p_instr(p):
+    'list_instr_p       :   instr list_instr_p'
     node_index = inc()
+    instructions = [p[1]] + p[2].instructions_list
     dot.node(node_index, 'instruction')
     dot.edge(node_index, p[1].node_index)
-    p[0] = Instructions.InstructionsList(node_index, [p[1]])
+    p[0] = Instructions.InstructionsList(node_index, instructions)
+    try:
+        'para vincular la posible lista de instrucciones'
+        dot.edge(node_index, p[2].node_index)
+    except AttributeError:
+        '''es la última instrucción por lo que list_instr_p produce epsilon
+        y no contiene atributo para vincular los nodos (ahí levanta error)
+        así que se controla el error omitiendo ese vínculo'''
+
+
+def p_list_instr_p_epsilon(p):
+    'list_instr_p       :   '
+    p[0] = Instructions.InstructionsList(None, [])
 
 
 def p_instr(p):
@@ -78,24 +97,41 @@ def p_instr(p):
     p[0] = p[1]
 
 
-def p_instr_error(p):
-    'instr              :   error S_SEMICOLON'
-
-
-def p_list_label_list(p):
-    'list_label         :   list_label label'
+def p_list_label(p):
+    'list_label         :   label list_label_p'
     node_index = inc()
     dot.node(node_index, 'label_list')
+    labels = [p[1]] + p[2].list_label
     dot.edge(node_index, p[1].node_index)
-    dot.edge(node_index, p[2].node_index)
-    p[1].list_label.append(p[2])
-    list_label = p[1].list_label
-    p[0] = Instructions.LabelList(node_index, list_label)
+    p[0] = Instructions.LabelList(node_index, labels)
+    try:
+        'para vincular la posible lista de labels'
+        dot.edge(node_index, p[2].node_index)
+    except AttributeError:
+        '''es la última instrucción por lo que list_label_p produce epsilon
+        y no contiene atributo para vincular los nodos (ahí levanta error)
+        así que se controla el error omitiendo ese vínculo'''
 
 
-def p_list_label_single(p):
-    'list_label         :   label'
-    p[0] = Instructions.LabelList(p[1].node_index, [p[1]])
+def p_list_label_p_label(p):
+    'list_label_p         :  label list_label_p'
+    node_index = inc()
+    labels = [p[1]] + p[2].list_label
+    dot.node(node_index, 'label')
+    dot.edge(node_index, p[1].node_index)
+    p[0] = Instructions.LabelList(node_index, labels)
+    try:
+        'para vincular la posible lista de labels'
+        dot.edge(node_index, p[2].node_index)
+    except AttributeError:
+        '''es la última instrucción por lo que list_label_p produce epsilon
+        y no contiene atributo para vincular los nodos (ahí levanta error)
+        así que se controla el error omitiendo ese vínculo'''
+
+
+def p_list_label_p_epsilon(p):
+    'list_label_p         :  '
+    p[0] = Instructions.LabelList(None, [])
 
 
 def p_label(p):
@@ -144,15 +180,19 @@ def p_array_register(p):
     p[0] = Expressions.ArrayRegister(node_index, p[1], p[2])
 
 
-def p_list_brackets_list(p):
-    'list_brackets      :   list_brackets S_L_SQR_BRA array_cont S_R_SQR_BRA'
-    p[1].append(p[3])
-    p[0] = p[1]
+def p_list_brackets(p):
+    'list_brackets      :   S_L_SQR_BRA array_cont S_R_SQR_BRA list_brackets_p'
+    p[0] = [p[2]] + p[4]
 
 
-def p_list_brackets_single(p):
-    'list_brackets      :   S_L_SQR_BRA array_cont S_R_SQR_BRA'
-    p[0] = [p[2]]
+def p_list_brackets_p_brackets(p):
+    'list_brackets_p    :   S_L_SQR_BRA array_cont S_R_SQR_BRA list_brackets_p'
+    p[0] = [p[2]] + p[4]
+
+
+def p_list_brackets_p_epsilon(p):
+    'list_brackets_p    :   '
+    p[0] = []
 
 
 def p_array_cont_primitive(p):
@@ -337,6 +377,12 @@ def p_simple_unary(p):
             p[2])
 
 
+def p_operand(p):
+    '''operand          :   register
+                        |   primitive'''
+    p[0] = p[1]
+
+
 def p_abs(p):
     'abs                :   R_ABS S_L_PAR register S_R_PAR'
     node_index = inc()
@@ -364,11 +410,6 @@ def p_print(p):
     dot.node(node_index, 'print()')
     dot.edge(node_index, p[3].node_index)
     p[0] = Instructions.Print(node_index, p[3])
-
-def p_operand(p):
-    '''operand          :   register
-                        |   primitive'''
-    p[0] = p[1]
 
 
 def p_exit(p):
@@ -402,7 +443,6 @@ def p_error(p):
         print("end of file")
         return
 
-# parser.parse(input)
 
 def parse(input):
     try:

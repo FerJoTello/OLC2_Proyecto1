@@ -1,5 +1,5 @@
 import Instructions
-from AscendentParser import parse
+from DescendentParser import parse
 from Expressions import *
 from Table import Symbol
 from Table import SymbolTable
@@ -581,7 +581,7 @@ basico = "main:\n$t1 = array();\n$t1[0]['nombre']=\"Hugo\";\n$t1[0]['direccion']
 basico2 = "main:\n$t0 = array(); $t0[0]='Carla'; defacasex: print($t0[0]);"
 soft = 'main: $t0=1; print($t0); if ($t0==1) goto labelsex; print("sigo aqui jaja"); labelsex: print("desde el label");'
 try:
-    labels = parse(soft)
+    labels = parse(input)
     process_labels(labels)
     process_main()
 except TypeError:
