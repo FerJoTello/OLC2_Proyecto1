@@ -4,7 +4,8 @@ import DescendentParser
 from Expressions import *
 from Table import Symbol
 from Table import SymbolTable
-
+from PyQt5.QtWidgets import QInputDialog, QLineEdit
+from PyQt5.QtCore import QDir
 
 symbol_table = SymbolTable()
 label_table = SymbolTable()
@@ -396,10 +397,14 @@ def process_terminal(term):
             print('*Error en conversion*')
             print(e)
             return None
-    '''
     elif isinstance(term, Read):
-        # return Primitive(TYPE.Read, [])
-    '''
+        text, ok = QInputDialog().getText(None, "read()",
+                                          "Ingresa el valor:", QLineEdit.Normal,
+                                          QDir().home().dirName())
+        if ok and text:
+            return Primitive('', TYPE.STRING, str(text))
+        return None
+        
 
 
 def process_conversion(expr):
@@ -580,10 +585,6 @@ def print_symbols(symbols):
         else:
             print("| "+symbol.name+" | "+symbol.reg_type.name+" | " +
                   symbol.value_type.name+" | "+str(symbol.value)+" |")
-
-
-if __name__ == "__main__":
-    print("This is a script")
 
 
 def parse_ascendent(input):
