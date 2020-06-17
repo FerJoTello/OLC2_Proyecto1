@@ -1,5 +1,6 @@
 import Instructions
-from AscendentParser import parse
+import AscendentParser
+import DescendentParser
 from Expressions import *
 from Table import Symbol
 from Table import SymbolTable
@@ -9,6 +10,7 @@ symbol_table = SymbolTable()
 label_table = SymbolTable()
 instructions_stack = []  # indice 0 es la cabeza
 actual_label = None
+console_value = ''
 
 
 def process_labels(labels):
@@ -496,10 +498,11 @@ def process_goto(instr):
 def process_print(instr):
     try:
         content = process_terminal(instr.content)
+        global console_value
         if str(content.value) == '\\n':
-            print('\n')
+            console_value = console_value + '>>\n'
         else:
-            print('>>'+str(content.value))
+            console_value = console_value + '>> '+str(content.value) + '\n'
     except:
         print('*Fallo en print()*\nNo es posible imprimir', str(instr.content))
 
@@ -579,19 +582,48 @@ def print_symbols(symbols):
                   symbol.value_type.name+" | "+str(symbol.value)+" |")
 
 
-input = "main: $a0=2; $a1=2; goto labelXD; print('esto ya no lo hace'); labelXD: $t0=$a0!=$a1; if ($t0) goto labelXD1; print('no se cumplio la condicion'); goto label3; labelXD1: $v0=2; label3: exit;"
-arrays = "main: $t0 = array(); $t0[0]='a'; $t0[1][0]='2'; $t1 = (int) $t0;"
-basico = "main:\n$t1 = array();\n$t1[0]['nombre']=\"Hugo\";\n$t1[0]['direccion']=\"zona 4\";\n$t1[0]['telefono'][0]=56457854;\n$t1[0]['telefono'][0]=45784565;\n"
-factorial = "main:\n$a0 = 3;\n$ra = 0; #level 0\ngoto fact;\nret0:\nprint($v0);\nexit;\nfact:\nif ($a0>1) goto sino;\n$v0 = 1;\nif ($ra==0) goto ret0;\n$ra = $ra - 1;\ngoto ret1;\nsino:\n$a0 = $a0 - 1;\n$ra = $ra + 1; #level ++\ngoto fact;\nret1:\n$a0 = $a0 + 1;\n$v0 = $a0 * $v0;\nif ($ra==0) goto ret0;\n$ra = $ra - 1;\ngoto ret1;\n"
-try:
-    labels = parse(factorial)
-    process_labels(labels)
-    process_main()
-except TypeError:
-    print('Se produjo un error en el analisis')
-except InterruptedError:
-    print('Ha finalizado la ejecución')
-try:
-    print_things()
-except Exception as e:
-    print(e)
+if __name__ == "__main__":
+    print("This is a script")
+
+
+def parse_ascendent(input):
+    try:
+        global console_value
+        console_value = ''
+        labels = AscendentParser.parse(input)
+        process_labels(labels)
+        process_main()
+    except MemoryError:
+        print('Se produjo un error en el analisis')
+    except RecursionError:
+        print('Se produjo un error en el analisis')
+    except TypeError:
+        print('Se produjo un error en el analisis')
+    except InterruptedError:
+        print('Ha finalizado la ejecución')
+    try:
+        print_things()
+    except Exception as e:
+        print(e)
+
+
+def parse_descendent(input):
+    try:
+        global console_value
+        console_value = ''
+        labels = DescendentParser.parse(input)
+        process_labels(labels)
+        process_main()
+    except MemoryError:
+        print('Se produjo un error en el analisis')
+    except RecursionError:
+        print('Se produjo un error en el analisis')
+    except TypeError:
+        print('Se produjo un error en el analisis')
+    except InterruptedError:
+        print('Ha finalizado la ejecución')
+    finally:
+        try:
+            print_things()
+        except Exception as e:
+            print(e)

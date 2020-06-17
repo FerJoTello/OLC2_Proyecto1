@@ -5,11 +5,10 @@
 # Created by: PyQt5 UI code generator 5.14.2
 #
 # WARNING! All changes made in this file will be lost!
-
-
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
+import Interpreter
 
 
 class Ui_MainWindow(object):
@@ -57,7 +56,6 @@ class Ui_MainWindow(object):
         font.setPointSize(8)
         self.textBrowser.setFont(font)
         self.textBrowser.setAutoFillBackground(False)
-        self.textBrowser.setPlaceholderText("")
         self.textBrowser.setObjectName("textBrowser")
         self.scrollArea_2.setWidget(self.scrollAreaWidgetContents_2)
         self.pushButton = QtWidgets.QPushButton(self.centralwidget)
@@ -172,7 +170,7 @@ class Ui_MainWindow(object):
                                             "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
                                             "p, li { white-space: pre-wrap; }\n"
                                             "</style></head><body style=\" font-family:\'Fixedsys\'; font-size:8pt; font-weight:400; font-style:normal;\" bgcolor=\"#2d3436\">\n"
-                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" color:#dfe6e9;\">¡Hola, Programador! Aquí verás la salida de tu código Augus...</span></p></body></html>"))
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" color:#dfe6e9;\">¡Hola, Programador! Aquí verás la salida de tu código Augus..."))
         self.pushButton.setText(_translate("MainWindow", "Siguiente Linea"))
         self.pushButton_2.setText(_translate("MainWindow", "Detener"))
         self.label.setText(_translate("MainWindow", "Debug:"))
@@ -220,20 +218,50 @@ class Ui_MainWindow(object):
         self.actionGuardar.triggered.connect(self.saveFile)
         self.actionGuardar_como.triggered.connect(self.saveFileAs)
         self.actionSalir.triggered.connect(self.closeAndExit)
+        self.actionEjecutar_Descendente.triggered.connect(
+            self.parse_descendent)
+        self.actionEjecutar_Todo_3.triggered.connect(self.parse_ascendent)
+
+    def parse_descendent(self):
+        input = self.textEdit.toPlainText()
+        Interpreter.parse_descendent(input)
+        console_value = Interpreter.console_value
+        html = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+        html = html + "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+        html = html + "p, li { white-space: pre-wrap; }\n"
+        html = html + "</style></head><body style=\" font-family:\'Fixedsys\'; font-size:8pt; font-weight:400; font-style:normal;\" bgcolor=\"#2d3436\">\n"
+        html = html + "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" color:#dfe6e9;\">"
+        html = html + console_value
+        self.textBrowser.setHtml(html)
+        print(self.textBrowser.currentFont)
+
+    def parse_ascendent(self):
+        input = self.textEdit.toPlainText()
+        Interpreter.parse_ascendent(input)
+        console_value = Interpreter.console_value
+        html = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+        html = html + "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+        html = html + "p, li { white-space: pre-wrap; }\n"
+        html = html + "</style></head><body style=\" font-family:\'Fixedsys\'; font-size:8pt; font-weight:400; font-style:normal;\" bgcolor=\"#2d3436\">\n"
+        html = html + "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" color:#dfe6e9;\">"
+        html = html + console_value
+        self.textBrowser.setHtml(html)
+        print(self.textBrowser.currentFont)
 
     def newFile(self):
         msgBox = QMessageBox()
         msgBox.setText("¿Deseas guardar el documento que estabas trabajando?")
-        msgBox.setStandardButtons(QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
+        msgBox.setStandardButtons(
+            QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
         choosen_option = msgBox.exec()
         if(choosen_option == QMessageBox.Save):
-            self.saveFile()    
+            self.saveFile()
         elif(choosen_option == QMessageBox.Discard):
             '''Discard changes'''
             self.discardChanges()
         elif(choosen_option == QMessageBox.Cancel):
             '''Does nothing'''
-    
+
     def discardChanges(self):
         self.textEdit.setText("")
         self.textBrowser.setText("")
@@ -281,8 +309,10 @@ class Ui_MainWindow(object):
             msgBox.setText("No se seleccionó ningún documento.")
             msgBox.exec()
             return False
+
     def closeAndExit(self):
         sys.exit()
+
 
 if __name__ == "__main__":
     import sys

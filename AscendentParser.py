@@ -4,6 +4,7 @@ import Instructions
 import Expressions
 import ply.yacc as yacc
 from graphviz import Graph
+dot = None
 n = -1
 
 
@@ -11,10 +12,6 @@ def inc():
     global n
     n = n + 1
     return 'n'+str(n)
-
-
-dot = Graph('AST_Ascendent')
-dot.format = 'png'
 
 lexer = lex.lex()
 
@@ -406,6 +403,9 @@ def p_error(p):
 
 def parse(input):
     try:
+        global dot
+        dot = Graph('AST_Ascendent')
+        dot.format = 'png'
         instructions = yacc.yacc().parse(input)
         dot.view()
         return instructions

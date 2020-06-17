@@ -5,16 +5,13 @@ import Expressions
 import ply.yacc as yacc
 from graphviz import Digraph
 n = -1
-
+dot = None
 
 def inc():
     global n
     n = n + 1
     return 'n'+str(n)
 
-
-dot = Digraph('AST_Descendent')
-dot.format = 'png'
 
 lexer = lex.lex()
 
@@ -446,6 +443,9 @@ def p_error(p):
 
 def parse(input):
     try:
+        global dot
+        dot = Digraph('AST_Descendent')
+        dot.format = 'png'
         instructions = yacc.yacc().parse(input)
         dot.view()
         return instructions
