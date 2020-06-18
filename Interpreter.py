@@ -8,11 +8,12 @@ from Table import SymbolTable
 from PyQt5.QtWidgets import QInputDialog, QLineEdit
 from PyQt5.QtCore import QDir
 
-symbol_table = SymbolTable()
-label_table = SymbolTable()
+symbol_table = None
+label_table = None
 instructions_stack = []  # indice 0 es la cabeza
 actual_label = None
 console_value = ''
+symbols_report = ''
 
 
 def process_labels(labels):
@@ -639,10 +640,12 @@ def parse_descendent(input):
     labels = DescendentParser.parse(input)
     start_interpreter(labels)
 
-symbols_report = ""
 def start_interpreter(labels):
-    global console_value
+    global console_value, symbol_table, label_table, symbols_report
+    symbol_table = SymbolTable()
+    label_table = SymbolTable()
     console_value = ''
+    symbols_report = ''
     try:
         if not labels:
             console_value = '>> Se produjo un error en el análisis.<br>' + \
@@ -688,7 +691,6 @@ def start_interpreter(labels):
 
     except Exception as e:
         print(e)
-    global symbols_report
     symbols_report = str("<html>\n" +
                          "<head>\n" +
                          "<meta charset='UTF-8'>\n" +
