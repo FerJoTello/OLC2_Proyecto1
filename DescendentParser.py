@@ -147,7 +147,7 @@ def p_assignation(p):
     dot.edge(node_index, p[1].node_index)
     dot.edge(node_index, p[3].node_index)
     p[0] = Instructions.Assignation(node_index, p[1], p[3])
-
+    p[0].lineno = p[1].lineno
 
 def p_register(p):
     '''register         :   s_register
@@ -165,6 +165,7 @@ def p_s_register(p):
     node_index = inc()
     dot.node(node_index, p.slice[1].value)
     p[0] = Expressions.Register(node_index, p.slice[1].type, p.slice[1].value)
+    p[0].lineno = p.slice[1].lineno
 
 
 def p_array_register(p):
@@ -175,6 +176,7 @@ def p_array_register(p):
     for bracket in p[2]:
         dot.edge(node_index, bracket.node_index)
     p[0] = Expressions.ArrayRegister(node_index, p[1], p[2])
+    p[0].lineno = p[1].lineno
 
 
 def p_list_brackets(p):
@@ -287,7 +289,7 @@ def p_binary(p):
     elif p.slice[2].type == 'OPB_R_SHIFT':
         p[0] = Expressions.BinaryExpression(node_index,
                                             Expressions.BIT_OPERATION.R_SHIFT, p[1], p[3])
-
+    p[0].lineno = p.slice[2].lineno
 
 def p_terminal(p):
     '''terminal         :   primitive
@@ -299,10 +301,12 @@ def p_terminal(p):
         node_index = inc()
         dot.node(node_index, 'read()')
         p[0] = Expressions.Read(node_index)
+        p[0].lineno = p.slice[1].lineno
     elif p.slice[1].type == 'R_ARRAY':
         node_index = inc()
         dot.node(node_index, 'array()')
         p[0] = Expressions.Array(node_index)
+        p[0].lineno = p.slice[1].lineno
     else:
         p[0] = p[1]
 
@@ -342,6 +346,7 @@ def p_conversion(p):
     dot.edge(node_index, node_conv_index)
     dot.edge(node_index, p[4].node_index)
     p[0] = Expressions.Conversion(node_index, _type, p[4])
+    p[0].lineno = p.slice[1].lineno
 
 
 def p_simple_unary(p):
@@ -372,6 +377,7 @@ def p_simple_unary(p):
             node_index,
             Expressions.BIT_OPERATION.NOT,
             p[2])
+    p[0].lineno = p.slice[1].lineno
 
 
 def p_operand(p):
@@ -389,6 +395,7 @@ def p_abs(p):
         node_index,
         Expressions.UNIT_OPERATION.ABSOLUTE,
         p[3])
+    p[0].lineno = p.slice[1].lineno
 
 
 def p_goto(p):
@@ -399,6 +406,7 @@ def p_goto(p):
     dot.node(node_lbl_index, p.slice[2].value)
     dot.edge(node_index, node_lbl_index)
     p[0] = Instructions.GoTo(node_index, p.slice[2].value)
+    p[0].lineno = p.slice[1].lineno
 
 
 def p_print(p):
@@ -407,6 +415,7 @@ def p_print(p):
     dot.node(node_index, 'print()')
     dot.edge(node_index, p[3].node_index)
     p[0] = Instructions.Print(node_index, p[3])
+    p[0].lineno = p.slice[1].lineno
 
 
 def p_exit(p):
@@ -414,6 +423,7 @@ def p_exit(p):
     node_index = inc()
     dot.node(node_index, 'exit')
     p[0] = Instructions.Exit(node_index)
+    p[0].lineno = p.slice[1].lineno
 
 
 def p_unset(p):
@@ -422,6 +432,7 @@ def p_unset(p):
     dot.node(node_index, 'unset()')
     dot.edge(node_index, p[3].node_index)
     p[0] = Instructions.Unset(node_index, p[3])
+    p[0].lineno = p.slice[1].lineno
 
 
 def p_if(p):
@@ -431,23 +442,28 @@ def p_if(p):
     dot.edge(node_index, p[3].node_index)
     dot.edge(node_index, p[5].node_index)
     p[0] = Instructions.If(node_index, p[3], p[5])
+    p[0].lineno = p.slice[1].lineno
 
 
 def p_error(p):
-    print("Error sintáctico en '%s'" % p.value)
-    print(p)
-    if not p:
+    try:
+        newError =  "<tr><td><center>Sintáctico</center></td>\n"
+        newError = newError + "<td><center>No se esperaba '"+p.value+"'.</center></td>\n" 
+        newError = newError + "<td><center>" + str(p.lineno) + "</center></td>\n"
+        newError = newError + "</tr>\n"
+        reported_errors.append(newError)
+    except:
         print("end of file")
-        return
 
 
 def parse(input):
     try:
         global dot
-        dot = Digraph('AST_Descendent')
+        dot = Digraph('AST')
         dot.format = 'png'
+        lexer.lineno = 0
         instructions = yacc.yacc().parse(input)
-        dot.view()
+        #dot.view()
         return instructions
     except Exception as e:
         print(e)

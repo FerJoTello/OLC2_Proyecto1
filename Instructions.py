@@ -12,30 +12,35 @@ class Assignation(Instruction):
         self.node_index = node_index
         self.reg = reg
         self.expr = expr
+        self.lineno = 0
 
 
 class GoTo(Instruction):
     def __init__(self, node_index, label):
         self.node_index = node_index
         self.label = label
+        self.lineno = 0
 
 
 class Print(Instruction):
     def __init__(self, node_index, content):
         self.node_index = node_index
         self.content = content
+        self.lineno = 0
 
 
 class Exit(Instruction):
     def __init__(self, node_index):
         '''exit class'''
         self.node_index = node_index
+        self.lineno = 0
 
 
 class Unset(Instruction):
     def __init__(self, node_index, reg):
         self.node_index = node_index
         self.reg = reg
+        self.lineno = 0
 
 
 class If(Instruction):
@@ -43,6 +48,7 @@ class If(Instruction):
         self.node_index = node_index
         self.expr = expr
         self.goto = goto
+        self.lineno = 0
 
 
 class LabelList:

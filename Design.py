@@ -181,8 +181,8 @@ class Ui_MainWindow(object):
         self.actionGuardar.triggered.connect(self.saveFile)
         self.actionGuardar_como.triggered.connect(self.saveFileAs)
         self.actionSalir.triggered.connect(self.closeAndExit)
-        self.actionEjecutar_Descendente.triggered.connect(
-            self.parse_descendent)
+        self.actionEjecutar_Descendente.triggered.connect(self.parse_descendent)
+        self.actionErrores_2.triggered.connect(self.show_errors)
         self.actionEjecutar_Todo.triggered.connect(self.parse_ascendent)
     
     def parse_descendent(self):
@@ -273,6 +273,10 @@ class Ui_MainWindow(object):
 
     def closeAndExit(self):
         sys.exit()
+
+    def show_errors(self):
+        import os
+        os.startfile('errors.html', 'open')
 
 
 if __name__ == "__main__":

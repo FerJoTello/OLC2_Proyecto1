@@ -1,3 +1,5 @@
+reported_errors = []
+
 reserved = {
     'int' :     'R_INT',
     'float':    'R_FLOAT',
@@ -161,17 +163,9 @@ def t_newline(t):
     t.lexer.lineno += t.value.count("\n")
 
 def t_error(t):
-    print("Caracter no valido '%s'" % t.value[0])
+    newError =  "<tr><td><center>Léxico</center></td>\n"
+    newError = newError + "<td><center>El caracter '"+t.value[0]+"' no pertenece al lenguaje.</center></td>\n" 
+    newError = newError + "<td><center>" + str(t.lineno) + "</center></td>\n"
+    newError = newError + "</tr>\n"
+    reported_errors.append(newError)
     t.lexer.skip(1)
-
-'''
-lexer = lex.lex()
-
-lexer.input("main:\n\t$t1=\"sex\";\n\t$a0=$t1;")
-
-while True:
-    tok = lexer.token()
-    if not tok:
-        break
-    print(tok)
-'''

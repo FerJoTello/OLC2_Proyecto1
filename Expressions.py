@@ -72,6 +72,7 @@ class UnitExpression(Expression):
         self.node_index = node_index
         self.operation = operation
         self.operand = operand
+        self.lineno = 0
 
 
 class BinaryExpression(Expression):
@@ -82,6 +83,7 @@ class BinaryExpression(Expression):
         self.operation = operation
         self.op1 = op1
         self.op2 = op2
+        self.lineno = 0
 
 
 class Terminal(Expression):
@@ -95,6 +97,7 @@ class Primitive(Terminal):
         self.node_index = node_index
         self.type = _type
         self.value = value
+        self.lineno = 0
 
 
 class Register(Terminal):
@@ -102,6 +105,7 @@ class Register(Terminal):
         self.node_index = node_index
         self.type = self.set_type(_type)
         self.name = name
+        self.lineno = 0
 
     def set_type(self, _type):
         types = {
@@ -116,17 +120,15 @@ class Register(Terminal):
 
 
 class Read(Terminal):
-    ''''''
-
     def __init__(self, node_index):
         self.node_index = node_index
+        self.lineno = 0
 
 
 class Array(Terminal):
-    ''''''
-
     def __init__(self, node_index):
         self.node_index = node_index
+        self.lineno = 0
 
 
 class Conversion(Terminal):
@@ -134,6 +136,7 @@ class Conversion(Terminal):
         self.node_index = node_index
         self.type = _type
         self.reg = reg
+        self.lineno = 0
 
 
 class ArrayRegister(Terminal):
@@ -141,6 +144,7 @@ class ArrayRegister(Terminal):
         self.node_index = node_index
         self.reg = reg
         self.index_list = index_list
+        self.lineno = 0
 
 
 # class

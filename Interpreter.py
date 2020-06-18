@@ -1,6 +1,7 @@
 import Instructions
 import AscendentParser
 import DescendentParser
+import Tokens
 from Expressions import *
 from Table import Symbol
 from Table import SymbolTable
@@ -52,9 +53,14 @@ def process_normal_assignation(instr):
         if not actual_label.type_defined and symb.reg_type == REG_TYPE.RETURN_VALUE:
             actual_label.type = REG_TYPE.FUNCTION
             actual_label.type_defined = True
-    except AttributeError as e:
-        print('*FALLO EN LA ASIGNACION*\nNO SE PUEDE REALIZAR LA ASIGNACIÓN DE', instr.reg.name)
-        print(e)
+    except AttributeError:
+        newError = "<td><center>Semántico</center></td>\n"
+        newError = newError + "<td><center>No es posible realizar la asignación de '" + \
+            instr.reg.name+"'.</center></td>\n"
+        newError = newError + "<td><center>" + \
+            str(instr.lineno) + "</center></td>\n"
+        newError = newError + "</center>\n"
+        Tokens.reported_errors.append(newError)
 
 
 def process_array_assignation(instr):
@@ -95,11 +101,15 @@ def process_array_assignation(instr):
                     symbol_array.value = "".join(string)
                 else:
                     raise Exception
-    except Exception as e:
+    except Exception:
         'No es un arreglo o no se encontró'
-        print('*Fallo en la asignación*\nNo se puede realizar la asignación de \'' +
-              instr.reg.reg.name+'\'')
-        print(e)
+        newError = "<tr><td><center>Semántico</center></td>\n"
+        newError = newError + "<td><center>No es posible realizar la asignación de '" + \
+            instr.reg.reg.name+"'.</center></td>\n"
+        newError = newError + "<td><center>" + \
+            str(instr.lineno) + "</center></td>\n"
+        newError = newError + "</tr>\n"
+        Tokens.reported_errors.append(newError)
 
 
 def process_expression(expr):
@@ -108,13 +118,13 @@ def process_expression(expr):
     elif isinstance(expr, BinaryExpression):
         op1 = process_terminal(expr.op1)
         op2 = process_terminal(expr.op2)
-        return process_binary_expression(expr.operation, op1, op2)
+        return process_binary_expression(expr.operation, op1, op2, expr.lineno)
     elif isinstance(expr, UnitExpression):
         operand = process_terminal(expr.operand)
-        return process_unit_expression(expr.operation, operand)
+        return process_unit_expression(expr.operation, operand, expr.lineno)
 
 
-def process_unit_expression(operation, operand):
+def process_unit_expression(operation, operand, lineno):
     operations = {
         UNIT_OPERATION.NEGATIVE: process_negative,
         UNIT_OPERATION.POINTER: process_pointer,
@@ -126,9 +136,17 @@ def process_unit_expression(operation, operand):
     try:
         return operation(operand)
     except UnboundLocalError:
-        print('*TIPO NO VÁLIDOS*\n' +
-              'No es posible realizar la operación \''+operation.name+'\'')
-        print('Tipo: \''+operand.type.name+'\'')
+        if operand != None:
+            type = operand.type.name
+        else:
+            type = 'null'
+        newError = "<tr><td><center>Semántico</center></td>\n"
+        newError = newError + "<td><center>No es posible realizar la operación '" + \
+            operation.name+"'.<br>Tipo operando: '"+type+"'.</center></td>\n"
+        newError = newError + "<td><center>" + str(lineno) + "</center></td>\n"
+        newError = newError + "</tr>\n"
+        Tokens.reported_errors.append(newError)
+        return None
 
 
 def process_negative(operand):
@@ -159,7 +177,7 @@ def process_bit_not(operand):
     return Primitive('', TYPE.INTEGER, value)
 
 
-def process_binary_expression(operation, op1, op2):
+def process_binary_expression(operation, op1, op2, lineno):
     operations = {
         ARITHMETIC_OPERATION.SUM: process_sum,
         ARITHMETIC_OPERATION.SUBSTRACTION: process_substraction,
@@ -185,14 +203,23 @@ def process_binary_expression(operation, op1, op2):
     try:
         return function(op1, op2)
     except:
-        try:
-            print('*TIPOS NO VÁLIDOS*\n' +
-                  'No es posible realizar la operación \''+operation.name+'\'')
-            # Si no se pudo realizar la operacion es por la compatibilidad de tipos...
-            print('Tipos: \''+op1.type.name+'\' y \''+op2.type.name+'\'')
-        except AttributeError:
-            # ... o es porque se obtuvo un None
-            print('Se obtuvo un valor None')
+        # Si no se pudo realizar la operacion es por la compatibilidad de tipos...
+        if op1 != None:
+            type1 = op1.type.name
+        else:
+            type1 = 'null'
+        if op2 != None:
+            type2 = op2.type.name
+        else:
+            type2 = 'null'
+        print('Tipos: \''+op1.type.name+'\' y \''+op2.type.name+'\'')
+        newError = "<tr><td><center>Semántico</center></td>\n"
+        newError = newError + "<td><center>Los tipos para la operación '"+operation.name + \
+            "' no son compatibles.<br>Tipo operando 1: '"+type1 + \
+            "'. Tipo operando 2: '"+type2+"'.</center></td>\n"
+        newError = newError + "<td><center>" + str(lineno) + "</center></td>\n"
+        newError = newError + "</tr>\n"
+        Tokens.reported_errors.append(newError)
         return None
 
 
@@ -352,12 +379,18 @@ def process_terminal(term):
                 actual_label.type = REG_TYPE.PROCEDURE
             return Primitive('', symbol.value_type, symbol.value)
         except AttributeError:
-            print("*Error al recuperar registro*\nNo se ha definido '"+term.name+"'")
+            newError = "<tr><td><center>Semántico</center></td>\n"
+            newError = newError + "<td><center>Error al recuperar registro. '" + \
+                term.name+"' no ha sido definido.</center></td>\n"
+            newError = newError + "<td><center>" + \
+                str(term.lineno) + "</center></td>\n"
+            newError = newError + "</tr>\n"
+            Tokens.reported_errors.append(newError)
             return None
     elif isinstance(term, ArrayRegister):
         'Se está accediendo al índice de un arreglo'
+        reg = term.reg  # es el Register que contiene el objeto ArrayRegister
         try:
-            reg = term.reg  # es el Register que contiene el objeto ArrayRegister
             index_list = term.index_list  # lista de indices del ArrayRegister
             # se obtiene de la tabla de simbolos el registro que actua como arreglo
             symbol_array = symbol_table.get(reg.name)
@@ -382,10 +415,15 @@ def process_terminal(term):
                             return Primitive('', TYPE.CHARACTER, array.value[index])
                         else:  # si no cumple entonces sí es un error
                             raise Exception
-        except Exception as e:
+        except Exception:
             'Al producirse una exception se detiene la busqueda del arreglo, ya que no existe'
-            print(
-                '*Error al obtener arreglo*\nNo se ha encontrado el indice solicitado para \''+reg.name+'\'')
+            newError = "<tr><td><center>Semántico</center></td>\n"
+            newError = newError + "<td><center>Error al recuperar arreglo. No se ha encontrado el índice solicitado '" + \
+                term.name+"'.</center></td>\n"
+            newError = newError + "<td><center>" + \
+                str(term.lineno) + "</center></td>\n"
+            newError = newError + "</tr>\n"
+            Tokens.reported_errors.append(newError)
             return None
     elif isinstance(term, Array):
         'Un arreglo está siendo creado'
@@ -393,9 +431,14 @@ def process_terminal(term):
     elif isinstance(term, Conversion):
         try:
             return process_conversion(term)
-        except Exception as e:
-            print('*Error en conversion*')
-            print(e)
+        except:
+            newError = "<tr><td><center>Semántico</center></td>\n"
+            newError = newError + "<td><center> No es posible realizar la conversión solicitada para el registro '" + \
+                term.reg.name+"'.</center></td>\n"
+            newError = newError + "<td><center>" + \
+                str(term.lineno) + "</center></td>\n"
+            newError = newError + "</tr>\n"
+            Tokens.reported_errors.append(newError)
             return None
     elif isinstance(term, Read):
         text, ok = QInputDialog().getText(None, "read()",
@@ -404,7 +447,6 @@ def process_terminal(term):
         if ok and text:
             return Primitive('', TYPE.STRING, str(text))
         return None
-        
 
 
 def process_conversion(expr):
@@ -495,9 +537,13 @@ def process_goto(instr):
         instructions_stack = [] + label.instructions
         actual_label = label
     else:
-        print("*Error en goto*")
-        print("No es posible hacer un salto a \'" +
-              instr.label+"\'. No fue definido.")
+        newError = "<tr><td><center>Semántico</center></td>\n" + \
+            "<td><center>No es posible realizar el salto hacia la etiqueta '" + \
+            instr.label+"'. No ha sido definida.</center></td>\n" + \
+            "<td><center>" + \
+            str(instr.lineno) + "</center></td>\n" + \
+            "</tr>\n"
+        Tokens.reported_errors.append(newError)
 
 
 def process_print(instr):
@@ -505,14 +551,22 @@ def process_print(instr):
         content = process_terminal(instr.content)
         global console_value
         if str(content.value) == '\\n':
-            console_value = console_value + '>>\n'
+            console_value = console_value + '>><br>'
         else:
-            console_value = console_value + '>> '+str(content.value) + '\n'
+            console_value = console_value + '>> '+str(content.value) + '<br>'
     except:
-        print('*Fallo en print()*\nNo es posible imprimir', str(instr.content))
+        newError = "<tr><td><center>Semántico</center></td>\n"
+        newError = newError + "<td><center>Fallo en 'print()'. No es posible imprimir '" + \
+            str(instr.content)+"'.</center></td>\n"
+        newError = newError + "<td><center>" + \
+            str(instr.lineno) + "</center></td>\n"
+        newError = newError + "</tr>\n"
+        Tokens.reported_errors.append(newError)
 
 
 def process_exit():
+    global console_value
+    console_value = console_value + '>> Ha finalizado la ejecución.<br>'
     raise InterruptedError
 
 
@@ -521,8 +575,13 @@ def process_unset(instr):
         try:
             del symbol_table.symbols[instr.reg.name]
         except KeyError:
-            print(
-                '*Fallo en unset()*\nNo se encontró un valor para el registro\''+instr.reg.name+'\'')
+            newError = "<tr><td><center>Semántico</center></td>\n"
+            newError = newError + "<td><center>Fallo en 'unset()'. No se encontró un valor para el registro'" + \
+                instr.reg.name+"'.</center></td>\n"
+            newError = newError + "<td><center>" + \
+                str(instr.lineno) + "</center></td>\n"
+            newError = newError + "</tr>\n"
+            Tokens.reported_errors.append(newError)
     elif isinstance(instr.reg, ArrayRegister):
         name = ''
         try:
@@ -549,8 +608,13 @@ def process_unset(instr):
                     name = name+'['+str(index)+']'
                     del array[index]
         except:
-            print(
-                "*Fallo en unset*\nNo se encontró un valor para el registro '"+name+"'")
+            newError = "<tr><td><center>Semántico</center></td>\n"
+            newError = newError + "<td><center>Fallo en 'unset()'. No se encontró un valor para el registro'" + \
+                name+"'.</center></td>\n"
+            newError = newError + "<td><center>" + \
+                str(instr.lineno) + "</center></td>\n"
+            newError = newError + "</tr>\n"
+            Tokens.reported_errors.append(newError)
 
 
 def process_main():
@@ -588,43 +652,63 @@ def print_symbols(symbols):
 
 
 def parse_ascendent(input):
-    try:
-        global console_value
-        console_value = ''
-        labels = AscendentParser.parse(input)
-        process_labels(labels)
-        process_main()
-    except MemoryError:
-        print('Se produjo un error en el analisis')
-    except RecursionError:
-        print('Se produjo un error en el analisis')
-    except TypeError:
-        print('Se produjo un error en el analisis')
-    except InterruptedError:
-        print('Ha finalizado la ejecución')
-    try:
-        print_things()
-    except Exception as e:
-        print(e)
+    Tokens.reported_errors = []
+    labels = AscendentParser.parse(input)
+    start_interpreter(labels)
 
 
 def parse_descendent(input):
+    Tokens.reported_errors = []
+    labels = DescendentParser.parse(input)
+    start_interpreter(labels)
+
+
+def start_interpreter(labels):
+    global console_value
+    console_value = ''
     try:
-        global console_value
-        console_value = ''
-        labels = DescendentParser.parse(input)
-        process_labels(labels)
-        process_main()
-    except MemoryError:
-        print('Se produjo un error en el analisis')
-    except RecursionError:
-        print('Se produjo un error en el analisis')
-    except TypeError:
-        print('Se produjo un error en el analisis')
+        if not labels:
+            console_value = '>> Se produjo un error en el análisis.<br>' + \
+                '>> ¡Revisa el reporte de errores!<br>'
+        else:
+            process_labels(labels)
+            process_main()
     except InterruptedError:
         print('Ha finalizado la ejecución')
+    except Exception as e:
+        console_value = console_value + '>> Ha ocurrido un error:<br>'
+        console_value = console_value + str(e)
     finally:
+        errors_report = str("<html>\n" +
+                            "<head>\n" +
+                            "<meta charset='UTF-8'>\n" +
+                            "<title>Reporte - Errores</title>\n" +
+                            "<body>\n" +
+                            "<h1>\n" +
+                            "<center>Listado de Errores y su descripción</center>\n" +
+                            "</h1>\n" +
+                            "<body>\n" +
+                            "<center>\n" +
+                            "<p>\n" +
+                            "<br>\n" +
+                            "</p>\n" +
+                            "<table border= 4>\n" +
+                            "<tr>\n" +
+                            "<td><center><b>Tipo de Error</b></center></td>\n" +
+                            "<td><center><b>Descripción</b></center></td>\n" +
+                            "<td><center><b>Fila</b></center></td>\n" +
+                            "</tr>\n")
         try:
+            for error in Tokens.reported_errors:
+                errors_report = errors_report + error
+            errors_report = errors_report + str("</table>\n" +
+                                                "</center>\n" +
+                                                "</body>\n" +
+                                                "</html>")
+            import codecs
+            file = codecs.open("errors.html", "w", "utf-8")
+            file.write(errors_report)
+            file.close()
             print_things()
         except Exception as e:
             print(e)
