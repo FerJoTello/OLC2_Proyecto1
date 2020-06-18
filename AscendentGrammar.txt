@@ -1,0 +1,106 @@
+GRAMATICA ASCENDENTE UTILIZADA PARA EL ANALIZADOR
+
+<INIT>::=           <START>
+
+<START>::=          <MAIN> <LIST_LABEL>
+                |   <MAIN>
+
+<MAIN>::=           main : <LIST_INSTR>
+                |   main error <LIST_INSTR>
+
+<LIST_INSTR>::=     <LIST_INSTR> <INSTR>
+                |   <INSTR>
+
+<INSTR>::=          <ASSIGNATION>
+                |   <GOTO>
+                |   <PRINT>
+                |   <EXIT>
+                |   <UNSET>
+                |   <IF>
+                |   error ;
+
+<LIST_LABEL>::=     <LIST_LABEL> <LABEL>
+                |   <LABEL>
+
+<LABEL>::=          id : <LIST_INSTR>
+                |   id error <LIST_INSTR>
+
+<ASSIGNATION>::=    <REGISTER> = <EXPRESSION> ;
+
+<REGISTER>::=       <S_REGISTER>
+                |   <ARRAY_REGISTER>
+
+<S_REGISTER>::=     temp
+                |   param
+                |   returned_value
+                |   returned_value_lvl
+                |   stack_value
+                |   stack_pointer
+
+<ARRAY_REGISTER>::= <S_REGISTER> <LIST_BRACKETS>
+
+<LIST_BRACKETS>::=  <LIST_BRACKETS> [ <ARRAY_CONT> ]
+                |   [ <ARRAY_CONT> ]
+
+<ARRAY_CONT>::=     <PRIMITIVE>
+                |   <S_REGISTER>
+
+<EXPRESSION>::=     <TERMINAL>
+                |   <SIMPLE_UNARY>
+                |   <BINARY>
+                |   <ABSOLUTE>
+
+<BINARY>::=         <OPERAND> + <OPERAND>
+                |   <OPERAND> - <OPERAND>
+                |   <OPERAND> * <OPERAND>
+                |   <OPERAND> / <OPERAND>
+                |   <OPERAND> % <OPERAND>
+                |   <OPERAND> || <OPERAND>
+                |   <OPERAND> && <OPERAND>
+                |   <OPERAND> xor <OPERAND>
+                |   <OPERAND> == <OPERAND>
+                |   <OPERAND> != <OPERAND>
+                |   <OPERAND> <= <OPERAND>
+                |   <OPERAND> >= <OPERAND>
+                |   <OPERAND> > <OPERAND>
+                |   <OPERAND> < <OPERAND>
+                |   <OPERAND> | <OPERAND>
+                |   <OPERAND> & <OPERAND>
+                |   <OPERAND> ^ <OPERAND>
+                |   <OPERAND> << <OPERAND>
+                |   <OPERAND> >> <OPERAND>
+
+<TERMINAL>::=       <PRIMITIVE>
+                |   <REGISTER>
+                |   read ( )
+                |   array ( )
+                |   <CONVERSION>
+
+<PRIMITIVE>::=      number
+                |   decimal
+                |   char
+                |   string
+
+<CONVERSION>::=     ( int ) <S_REGISTER>
+                |   ( float ) <S_REGISTER>
+                |   ( char ) <S_REGISTER>
+
+<SIMPLE_UNARY>::=   - <OPERAND>
+                |   & <OPERAND>
+                |   ! <OPERAND>
+                |   ~ <OPERAND>
+
+<ABSOLUTE>::=       abs ( <REGISTER> )
+
+<GOTO>::=           goto id ;
+
+<PRINT>::=          print ( <OPERAND> ) ;
+
+<OPERAND>::=        <REGISTER>
+                |   <PRIMITIVE>
+
+<EXIT>::=           exit ;
+
+<UNSET>::=          unset ( <REGISTER> ) ;
+
+<IF>::=             if ( <EXPRESSION> ) <GOTO>
