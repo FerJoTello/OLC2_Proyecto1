@@ -419,10 +419,11 @@ def parse(input):
     try:
         global dot
         dot = Graph('AST')
+        dot.filename = 'AST'
         dot.format = 'png'
         lexer.lineno = 0
         instructions = yacc.yacc().parse(input)
-        #dot.view()
+        dot.render()
         return instructions
     except Exception as e:
         print(e)

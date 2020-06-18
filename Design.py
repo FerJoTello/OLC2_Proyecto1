@@ -184,6 +184,8 @@ class Ui_MainWindow(object):
         self.actionEjecutar_Descendente.triggered.connect(self.parse_descendent)
         self.actionErrores_2.triggered.connect(self.show_errors)
         self.actionEjecutar_Todo.triggered.connect(self.parse_ascendent)
+        self.actionAST.triggered.connect(self.show_ast)
+        self.actionTabla_de_Simbolos.triggered.connect(self.show_symbols)
     
     def parse_descendent(self):
         input = self.textEdit.toPlainText()
@@ -278,6 +280,13 @@ class Ui_MainWindow(object):
         import os
         os.startfile('errors.html', 'open')
 
+    def show_ast(self):
+        import os
+        os.startfile('AST.png', 'open')
+
+    def show_symbols(self):
+        import os
+        os.startfile('symbols.html', 'open')
 
 if __name__ == "__main__":
     import sys

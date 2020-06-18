@@ -39,7 +39,7 @@ def process_instructions():
         elif isinstance(instr, Instructions.Unset):
             process_unset(instr)
         elif isinstance(instr, Instructions.Exit):
-            process_exit()
+            process_exit(instr)
 
 
 def process_normal_assignation(instr):
@@ -564,9 +564,10 @@ def process_print(instr):
         Tokens.reported_errors.append(newError)
 
 
-def process_exit():
+def process_exit(instr):
     global console_value
-    console_value = console_value + '>> Ha finalizado la ejecución.<br>'
+    console_value = console_value + \
+        '>> Ha finalizado la ejecución en la línea '+str(instr.lineno)+'.<br>'
     raise InterruptedError
 
 
@@ -627,6 +628,136 @@ def process_main():
     process_instructions()
 
 
+def parse_ascendent(input):
+    Tokens.reported_errors = []
+    labels = AscendentParser.parse(input)
+    start_interpreter(labels)
+
+
+def parse_descendent(input):
+    Tokens.reported_errors = []
+    labels = DescendentParser.parse(input)
+    start_interpreter(labels)
+
+symbols_report = ""
+def start_interpreter(labels):
+    global console_value
+    console_value = ''
+    try:
+        if not labels:
+            console_value = '>> Se produjo un error en el análisis.<br>' + \
+                '>> ¡Revisa el reporte de errores!<br>'
+        else:
+            process_labels(labels)
+            process_main()
+    except InterruptedError:
+        print('Ha finalizado la ejecución')
+    #except Exception as e:
+        #console_value = console_value + '>> Ha ocurrido un error:<br>'
+        #console_value = console_value + str(e)
+    errors_report = str("<html>\n" +
+                        "<head>\n" +
+                        "<meta charset='UTF-8'>\n" +
+                        "<title>Reporte - Errores</title>\n" +
+                        "<body>\n" +
+                        "<h1>\n" +
+                        "<center>Listado de Errores y su descripción</center>\n" +
+                        "</h1>\n" +
+                        "<body>\n" +
+                        "<center>\n" +
+                        "<p>\n" +
+                        "<br>\n" +
+                        "</p>\n" +
+                        "<table border= 4>\n" +
+                        "<tr>\n" +
+                        "<td><center><b>Tipo de Error</b></center></td>\n" +
+                        "<td><center><b>Descripción</b></center></td>\n" +
+                        "<td><center><b>Fila</b></center></td>\n" +
+                        "</tr>\n")
+    try:
+        for error in Tokens.reported_errors:
+            errors_report = errors_report + error
+        errors_report = errors_report + str("</table>\n" +
+                                            "</center>\n" +
+                                            "</body>\n" +
+                                            "</html>")
+        import codecs
+        file = codecs.open("errors.html", "w", "utf-8")
+        file.write(errors_report)
+        file.close()
+
+    except Exception as e:
+        print(e)
+    global symbols_report
+    symbols_report = str("<html>\n" +
+                         "<head>\n" +
+                         "<meta charset='UTF-8'>\n" +
+                         "<title>Reporte - Tabla de Símbolos</title>\n" +
+                         "<body>\n" +
+                         "<h1>\n" +
+                         "<center>Listado de variables y su descripción</center>\n" +
+                         "</h1>\n" +
+                         "<center>\n" +
+                         "<p>\n" +
+                         "<br>\n" +
+                         "</p>\n" +
+                         "<table border= 4>\n" +
+                         "<tr>\n" +
+                         "<td><center><b>Identificador</b></center></td>\n" +
+                         "<td><center><b>Tipo del símbolo</b></center></td>\n" +
+                         "<td><center><b>Tipo del valor</b></center></td>\n" +
+                         "<td><center><b>Valor</b></center></td>\n" +
+                         "</tr>\n")
+    try:
+        add_symbols(symbol_table.symbols)
+        symbols_report = symbols_report + str("</table>\n" +
+                                              "</center>\n")
+        symbols_report = symbols_report + str("<h1>\n" +
+                         "<center>Listado de etiquetas y su tipo</center>\n" +
+                         "</h1>\n" +
+                         "<center>\n" +
+                         "<p>\n" +
+                         "<br>\n" +
+                         "</p>\n" +
+                         "<table border= 4>\n" +
+                         "<tr>\n" +
+                         "<td><center><b>Identificador</b></center></td>\n" +
+                         "<td><center><b>Tipo de función</b></center></td>\n"
+                         "</tr>\n")
+        for key in label_table.symbols:
+            label = label_table.get(key)
+            symbols_report = symbols_report+ "<tr>\n" + \
+                "<td><center>"+label.name+"</center></td>\n" + \
+                "<td><center>"+label.type.name+"</center></td>\n"
+        symbols_report = symbols_report + "</table>\n</center>\n</body>\n</html>"
+        import codecs
+        file_report = codecs.open("symbols.html", "w", "utf-8")
+        file_report.write(symbols_report)
+        file_report.close()
+    except Exception as e:
+        print(e)
+
+
+def add_symbols(symbols):
+    global symbols_report
+    for key in symbols:
+        symbol = symbols.get(key)
+        if symbol.value_type == TYPE.ARRAY:
+            new_symbol = "<tr>\n" + \
+                "<td><center>"+symbol.name+"</center></td>\n" + \
+                "<td><center>"+symbol.reg_type.name+"</center></td>\n" + \
+                "<td><center>"+symbol.value_type.name+"</center></td>\n" + \
+                "<td><center>(Enlistados abajo)</center></td>\n"
+            symbols_report = symbols_report + new_symbol
+            add_symbols(symbol.value)
+        else:
+            new_symbol = "<tr>\n" + \
+                "<td><center>"+symbol.name+"</center></td>\n" + \
+                "<td><center>"+symbol.reg_type.name+"</center></td>\n" + \
+                "<td><center>"+symbol.value_type.name+"</center></td>\n" + \
+                "<td><center>"+str(symbol.value)+"</center></td>\n"
+            symbols_report = symbols_report + new_symbol
+
 def print_things():
     print("*****************************************")
     print("| ID | LABEL_TYPE |")
@@ -649,66 +780,3 @@ def print_symbols(symbols):
         else:
             print("| "+symbol.name+" | "+symbol.reg_type.name+" | " +
                   symbol.value_type.name+" | "+str(symbol.value)+" |")
-
-
-def parse_ascendent(input):
-    Tokens.reported_errors = []
-    labels = AscendentParser.parse(input)
-    start_interpreter(labels)
-
-
-def parse_descendent(input):
-    Tokens.reported_errors = []
-    labels = DescendentParser.parse(input)
-    start_interpreter(labels)
-
-
-def start_interpreter(labels):
-    global console_value
-    console_value = ''
-    try:
-        if not labels:
-            console_value = '>> Se produjo un error en el análisis.<br>' + \
-                '>> ¡Revisa el reporte de errores!<br>'
-        else:
-            process_labels(labels)
-            process_main()
-    except InterruptedError:
-        print('Ha finalizado la ejecución')
-    except Exception as e:
-        console_value = console_value + '>> Ha ocurrido un error:<br>'
-        console_value = console_value + str(e)
-    finally:
-        errors_report = str("<html>\n" +
-                            "<head>\n" +
-                            "<meta charset='UTF-8'>\n" +
-                            "<title>Reporte - Errores</title>\n" +
-                            "<body>\n" +
-                            "<h1>\n" +
-                            "<center>Listado de Errores y su descripción</center>\n" +
-                            "</h1>\n" +
-                            "<body>\n" +
-                            "<center>\n" +
-                            "<p>\n" +
-                            "<br>\n" +
-                            "</p>\n" +
-                            "<table border= 4>\n" +
-                            "<tr>\n" +
-                            "<td><center><b>Tipo de Error</b></center></td>\n" +
-                            "<td><center><b>Descripción</b></center></td>\n" +
-                            "<td><center><b>Fila</b></center></td>\n" +
-                            "</tr>\n")
-        try:
-            for error in Tokens.reported_errors:
-                errors_report = errors_report + error
-            errors_report = errors_report + str("</table>\n" +
-                                                "</center>\n" +
-                                                "</body>\n" +
-                                                "</html>")
-            import codecs
-            file = codecs.open("errors.html", "w", "utf-8")
-            file.write(errors_report)
-            file.close()
-            print_things()
-        except Exception as e:
-            print(e)
